@@ -6,7 +6,7 @@ input two integers and it will calculate the lcd
 
 
 DEBUG=true go run main.go
-DEBUG=true go run main.go -n 10 -m 100
+DEBUG=true go run main.go -n 500 -m 60
 DEBUG=true go run main.go -n 10 -m 100 -preview -prompt
 
 

@@ -23,7 +23,7 @@ func main() {
 	flag.Int64Var(&m, "m", 0, "the m value as an integer")
 	flag.StringVar(&ns, "ns", "", "the n as ns value as an integer if you want prompting for the input")
 	flag.StringVar(&ms, "ms", "", "the m as ms value as an integer if you want prompting for the input")
-	flag.BoolVar(&steps, "steps", false, "if true will show you each step of the calc")
+	flag.BoolVar(&steps, "steps", false, "if true will show you each step of the reduction")
 	flag.BoolVar(&prompt, "prompt", false, "get asked for the values instead of entering them in the command")
 	flag.BoolVar(&preview, "preview", false, "you enter two numbers n and m. the program then "+
 		"calculates the lowest common denominater for those two numbers")
@@ -43,29 +43,42 @@ func main() {
 		os.Exit(0)
 	}
 
+	// If no arguments passed, show usage
+	if prompt == false && (n == 0 || m == 0) {
+		flag.Usage()
+		os.Exit(1)
+	}
+
 	// Conditionally read from stdin
 	if prompt {
 		ms, ns = renderPrompt()
-		fmt.Println("ms:", ms)
-		fmt.Println("ns:", ns)
-		n, _ := strconv.Atoi(ns)
-		m, _ := strconv.Atoi(ms)
-		fmt.Println("n:", n)
-		fmt.Println("m:", m)
 	}
+
+	if ms != "" && ns != "" {
+		m, _ = strconv.ParseInt(ms, 10, 64)
+		n, _ = strconv.ParseInt(ns, 10, 64)
+	}
+
+	sc := 0
 	remainder := calcLcd(n, m)
 	for remainder != 0 {
+		sc += 1
 		n = m
 		m = remainder
 		remainder = calcLcd(n, m)
+		if steps {
+			fmt.Printf("step is %v the current remainder is: %v \n", sc, m)
+		}
 	}
-	fmt.Print("lcd is: ", m)
+	if m == 1 {
+		fmt.Printf("the final remainder is: %v so no lcd \n", m)
+	} else {
+		fmt.Printf("the final remainder is: %v which is the lcd \n", m)
+	}
 }
 
 func calcLcd(n, m int64) int64 {
 	r := n % m
-
-	fmt.Println("r:", r)
 	return r
 }
 
@@ -79,7 +92,6 @@ func renderPrompt() (ns, ms string) {
 	fmt.Print("Integer m: ")
 	ms, _ = reader.ReadString('\n')
 	ms = strings.TrimSpace(ms)
-	//n, err := strconv.Atoi(ns)
-	//m, err := strconv.Atoi(ms)
+
 	return
 }
